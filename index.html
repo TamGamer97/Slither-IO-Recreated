@@ -1,0 +1,453 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <canvas></canvas>        
+
+    <div id="ui">
+        <h1 style="font-style: italic;" id="message">SNAKE GAME <span style="font-size: 15px; font-style: normal;">for Rehan</span> </h1>
+        <button id="startButton" onclick='startGame()'>START</button>
+        
+        <button id="restartButton" onclick='reset()'>OK</button>
+        
+        <div id="textureSelect" style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; position: absolute; top: 0px; left: 0px; z-index: 20px;">
+            <div style="position: relative; width: 550px; height: 250px; background-color: rgba(85, 103, 111, 0.151); border-radius: 20px; display: flex; align-items: center; ">
+                <img onclick="changePreview('left')" src="/arrowIcon.png" style="width: 50px; transform: rotate(180deg); position: absolute; left: 10px; cursor: pointer;">
+                <img onclick="changePreview('right')" src="/arrowIcon.png" style="width: 50px; position: absolute; right: 10px; cursor: pointer;">
+    
+                <div style="display: flex; justify-content: center; width: 100%;">
+                    <img id="snakePreview" src="/Textures/Lightblue.png" style="width: 250px;">
+                </div>
+    
+            </div>
+        </div>
+
+        <div style="position: absolute; top: 20px; left: 20px; background-color: rgba(173, 216, 230, 0.063); background-color: transparent; width: 150px; height: 150px; border-radius: 50px; display: flex; justify-content: center; align-items: center; ">
+          <div id="mini-map" style="position: relative; display: flex; justify-content: center; align-items: center; top: 0px; left: 0px; background-color: rgba(173, 216, 230, 0.063); width: 130px; height: 130px;" >
+            <div id="playerRespective" style="position: absolute; top: 0px; left: 0px; background-color: lightblue; width: 10px; height: 10px; border-radius: 20px; border: solid 1px; border-color: blue;"></div>
+
+            <div style="position: absolute; width: 100%; height: 2px; background-color: rgba(173, 216, 230, 0.315)"></div>
+            <div style="position: absolute; width: 2px; height: 100%; background-color: rgba(173, 216, 230, 0.315);"></div>
+          </div>
+        </div>
+
+    </div>
+
+
+
+
+</body>
+</html>
+
+
+
+<script>
+let startButton = document.getElementById('startButton');
+let restartButton = document.getElementById('restartButton');
+let message = document.getElementById('message');
+let canvas = document.querySelector('canvas')
+
+
+var zoom = 1
+
+const originalWidth = innerWidth
+const originalHeight = innerHeight
+
+innerWidth = innerWidth * zoom
+innerHeight = innerHeight * zoom
+
+
+
+canvas.width = (window.innerWidth *1) * 2
+canvas.height = (window.innerHeight *1) * 2
+
+let c = canvas.getContext('2d')
+
+let snakeArray = []
+let foodArray = []
+
+let alive = false;
+let snakeX = (innerWidth*1)/2;
+let snakeY = (innerHeight*1)/2;
+let mouseX = 0;
+let mouseY = 0;
+let radius = 15;
+let speed = 3;
+let angle = 0;
+let dx = 0;
+let dy = -2.5;
+let faceAngle = 0
+
+
+function updateZoom(newZoom)
+{
+    if(newZoom > 0.1)
+    {
+        console.log('updating zoom ' + newZoom)
+        document.body.style.zoom = 1/newZoom
+        document.getElementById('ui').style.zoom = zoom - 0.1
+        zoom = newZoom
+        innerWidth = originalWidth * zoom
+        innerHeight = originalHeight * zoom
+    
+        // canvas.width = (window.innerWidth *1) * 2
+        // canvas.height = (window.innerHeight *1) * 2
+    }
+
+
+}
+
+window.addEventListener('wheel', (e) => {
+    function checkScrollDirection(event) {
+      if (checkScrollDirectionIsUp(event)) {
+        return 'UP'
+      } else {
+        return 'DOWN'
+      }
+    }
+    
+    function checkScrollDirectionIsUp(event) {
+      if (event.wheelDelta) {
+        return event.wheelDelta > 0;
+      }
+      return event.deltaY < 0;
+    }
+
+    const d = checkScrollDirection(e)
+
+    if(d == 'UP')
+    {
+        updateZoom(zoom - 0.1)
+    }
+    if(d == 'DOWN')
+    {
+        updateZoom(zoom + 0.1)
+    }
+
+});
+
+
+const textures = [ ['LightBlue', '#94E6FF', '#00C3FF'], ['Red','#FF9494', '#FF0000'], ['Orange', '#FFD494', '#FF8A00'], ['Green', '#94FF98', '#24FF00'], ['Purple', '#B094FF', '#8000FF'], ['Pink', '#FF94E1', '#FF00A8'] ]
+
+window.addEventListener('mousemove', function(event) {
+  mouseX = (event.x*zoom) + (snakeX - (innerWidth*1)/2)
+  mouseY = (event.y*zoom) + (snakeY - (innerHeight*1)/2)
+  // angle from center of circle to mouse
+  if(mouseX - snakeX > 0 && mouseY - snakeY < 0){
+    // top right section of snake
+    angle = Math.atan((snakeY - mouseY)/(snakeX - mouseX)) * (180/Math.PI) * -1
+    dx = Math.sin((180 - (angle + 90)) * (Math.PI/180))/Math.sin(90 * (Math.PI/180))
+    dy = (Math.sin(angle * (Math.PI/180))/Math.sin(90 * (Math.PI/180))) * -1
+  } else if(mouseX - snakeX < 0 && mouseY - snakeY < 0){
+    // top left section of snake
+    angle = Math.atan((snakeY - mouseY)/(snakeX - mouseX)) * (180/Math.PI)
+    dx = Math.sin((180 - (angle + 90)) * (Math.PI/180))/Math.sin(90 * (Math.PI/180)) * -1
+    dy = (Math.sin(angle * (Math.PI/180))/Math.sin(90 * (Math.PI/180))) * -1
+  } else if(mouseX - snakeX < 0 && mouseY - snakeY > 0){
+    // bottom left section of snake
+    angle = Math.atan((snakeY - mouseY)/(snakeX - mouseX)) * (180/Math.PI) * -1
+    dx = Math.sin((180 - (angle + 90)) * (Math.PI/180))/Math.sin(90 * (Math.PI/180)) * -1
+    dy = Math.sin(angle * (Math.PI/180))/Math.sin(90 * (Math.PI/180))
+  } else if(mouseX - snakeX > 0 && mouseY - snakeY > 0){
+    // bottom right section of snake
+    angle = Math.atan((snakeY - mouseY)/(snakeX - mouseX)) * (180/Math.PI)
+    dx = Math.sin((180 - (angle + 90)) * (Math.PI/180))/Math.sin(90 * (Math.PI/180))
+    dy = Math.sin(angle * (Math.PI/180))/Math.sin(90 * (Math.PI/180))
+  }
+
+
+  // Face angle
+  // mouseX, mouseY
+  // innerWidth/2, innerHeight/2
+
+  const deltaX = (window.screen.width/2) - event.clientX
+  const deltaY = (window.screen.height/2) - event.clientY
+
+  var rad = Math.atan2(deltaY, deltaX)
+  var deg = Math.round(rad * (180/Math.PI))
+
+  if(deg < 0)
+  {
+    deg = (deg + 360) % 360
+  }
+  rad = deg*(Math.PI/180)
+
+  faceAngle = rad + 1.7
+
+  // console.log('deg ' + deg)
+  console.log(faceAngle)
+
+
+
+})
+
+window.addEventListener('mousedown', function() {
+  speed = 6
+})
+window.addEventListener('mouseup', function() {
+  speed = 3
+})
+
+  
+function update() {
+  
+  if(snakeArray[snakeArray.length - 1].x < radius || snakeArray[snakeArray.length - 1].x  > canvas.width - radius || snakeArray[snakeArray.length - 1].y < radius || snakeArray[snakeArray.length - 1].y > canvas.height - radius){
+    restartButton.style.display = 'block';
+    message.textContent = 'GAME OVER';
+    message.style.display = 'block';
+    alive = false
+  }
+
+  // console.log(snakeArray[snakeArray.length -1].x, snakeArray[snakeArray.length-1].y)
+
+  count = 0
+  for( let i = 0; i < snakeArray.length ; i++){
+    if(i%3 == 0){
+      c.beginPath();
+      c.arc(snakeArray[i].x, snakeArray[i].y, radius, 0, Math.PI * 2, false);
+      c.strokeStyle = textures[currentPreview][2]
+      c.lineWidth = 5;
+      c.stroke()
+      c.fillStyle = textures[currentPreview][1]
+      c.fill()
+      count+=1
+    }
+  }
+
+    // c.beginPath();
+    // c.arc(snakeArray[snakeArray.length-1].x, snakeArray[snakeArray.length-1].y, radius, 0, Math.PI * 2, false);
+    // c.strokeStyle = textures[currentPreview][2]
+    // c.lineWidth = 5;
+    // // c.stroke()
+    // c.fillStyle = textures[currentPreview][1]
+    // c.fill()
+    
+    
+    // console.log(faceAngle)
+    c.beginPath()
+    c.translate(snakeArray[snakeArray.length-1].x,snakeArray[snakeArray.length-1].y);
+    c.rotate(faceAngle)
+    c.translate(-(snakeArray[snakeArray.length-1].x),-(snakeArray[snakeArray.length-1].y));
+    c.arc(snakeArray[snakeArray.length-1].x, snakeArray[snakeArray.length-1].y, 10, 0, (2 * Math.PI)/2);
+    c.strokeStyle = 'grey'
+    c.lineWidth = 2;
+    c.stroke()
+    // c.beginPath()
+    
+    c.translate(snakeArray[snakeArray.length-1].x,snakeArray[snakeArray.length-1].y);
+    c.rotate(-(faceAngle))
+    c.translate(-(snakeArray[snakeArray.length-1].x),-(snakeArray[snakeArray.length-1].y));
+
+
+    count+=1
+
+  for( let i = 0; i < foodArray.length ; i++){
+    if(i%3 == 0){
+        if(foodArray[i].eaten == false)
+        {
+            c.beginPath();
+            c.arc(foodArray[i].x, foodArray[i].y, 5, 0, Math.PI * 2, false);
+            c.strokeStyle = textures[foodArray[i].color][2]
+            c.lineWidth = 5;
+            c.stroke()
+            c.fillStyle = textures[foodArray[i].color][1]
+            c.fill()
+            if(snakeArray[snakeArray.length-1].x - foodArray[i].x > -10 && snakeArray[snakeArray.length-1].x - foodArray[i].x < 10)
+            {
+                if(snakeArray[snakeArray.length-1].y - foodArray[i].y > -10 && snakeArray[snakeArray.length-1].y - foodArray[i].y < 10)
+                {
+                    foodArray[i]['eaten'] = true
+                    console.log('eat')
+                    addBody(3)
+                }
+            }
+        }
+        
+    }
+  }
+  
+  snakeX = snakeArray[snakeArray.length - 1].x;
+  snakeY = snakeArray[snakeArray.length - 1].y;
+  snakeX += dx * speed;
+  snakeY += dy * speed;
+  
+  snakeArray.shift();
+  
+  let newHead = { x : snakeX, y : snakeY}
+  snakeArray.push(newHead);
+
+
+  const scaleW = (JSON.parse((document.getElementById('mini-map').style.width).split('px')[0])-10) / innerWidth/2
+  const scaleH = (JSON.parse((document.getElementById('mini-map').style.height).split('px')[0])-10) / innerHeight/2
+
+  document.getElementById('playerRespective').style.left = newHead.x * scaleW + 'px'
+  document.getElementById('playerRespective').style.top = newHead.y * scaleH + 'px'
+}
+
+setTimeout(() => {
+    addBody()
+}, 5000);
+
+function randomNumber(min, max)
+{
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
+function init() {
+  snakeArray = []
+  for(let i = 0; i < 100; i++){
+    snakeArray[i] = {
+      x: snakeX,
+      y: snakeY
+    }
+  }
+
+  foodArray = []
+  for(let i = 0; i < 100; i++){
+    foodArray[i] = {
+      x: randomNumber(0, canvas.width),
+      y: randomNumber(0, canvas.height),
+      eaten: false,
+      color: randomNumber(0, textures.length - 1)
+    }
+  }
+
+  document.getElementById('playerRespective').style.backgroundColor = textures[currentPreview][1]
+  document.getElementById('playerRespective').style.borderColor = textures[currentPreview][2]
+}
+
+function addBody(amount)
+{
+    var c = 0
+    while (c < amount)
+    {
+        snakeArray.push({x: snakeX, y: snakeY})
+        c++
+    }
+}
+
+function animate() {
+  if(alive){
+    requestAnimationFrame(animate);
+  }
+  c.clearRect(0,0, canvas.width, canvas.height)
+  canvas.style.transform = `translate(${(snakeX - (innerWidth*1)/2) * -1}px, ${(snakeY - (innerHeight*1)/2) * -1}px)`
+  update()
+}
+
+function startGame(){
+  alive = true;
+  startButton.style.display = 'none';
+  message.style.display = 'none';
+  init(100)
+  animate()
+  document.getElementById('textureSelect').style.display = 'none'
+}
+
+function reset(){
+  c.clearRect(0,0, canvas.width, canvas.height)
+  alive = false
+  restartButton.style.display = 'none';
+  startButton.style.display = 'block';
+  message.innerHTML = 'SNAKE GAME <span style="font-size: 15px; font-style: normal;">for Rehan';
+  message.style.display = 'block';
+  snakeArray = []
+  snakeX = (innerWidth*1)/2;
+  snakeY = (innerHeight*1)/2;
+  dx = 0;
+  dy = -2.5;
+
+  document.getElementById('textureSelect').style.display = 'flex'
+}
+
+var currentPreview = 0
+function changePreview(direction)
+{
+    if(direction == 'left')
+    {
+        if(currentPreview == 0)
+        {
+            currentPreview = textures.length - 1
+        }else{
+            currentPreview -= 1
+        }
+        document.getElementById('snakePreview').src = '/Textures/' + textures[currentPreview][0] + '.png'
+    }
+
+    if(direction == 'right')
+    {
+        if(currentPreview == textures.length - 1)
+        {
+            currentPreview = 0
+        }else{
+            currentPreview += 1
+        }
+        document.getElementById('snakePreview').src = '/Textures/' + textures[currentPreview][0] + '.png'
+    }
+}
+
+</script>
+
+
+<style>
+    body{
+  margin: 0;
+  overflow: hidden;
+  background-color: #171a23;
+}
+canvas{
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-image: url(/bg.png);
+  border: 3px solid red;
+  background-color: #1e222e;
+}
+
+#startButton{
+  position: absolute;
+  top: 70%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  height: 50px;
+  width: 100px;
+  font-family: 'Futura', sans-serif;
+  background-color: #94e6ff;
+  border: 4px solid #00c3ff;
+  border-radius: 100px;
+  cursor: pointer;
+}
+
+#restartButton{
+  display: none;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 10;
+  height: 50px;
+  width: 100px;
+  font-family: 'Futura', sans-serif;
+  background-color: #94e6ff;
+  border: 4px solid #00c3ff;
+  border-radius: 100px;
+  cursor: pointer;
+}
+
+#message{
+  position: absolute;
+  top: calc(40% - 120px);
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-family: 'Futura', sans-serif;
+  z-index: 10;
+  font-size: 40px;
+  color: white
+}
+</style>
