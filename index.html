@@ -15,20 +15,50 @@
         
         <button id="restartButton" onclick='reset()'>OK</button>
         
-        <div id="textureSelect" style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; position: absolute; top: 0px; left: 0px; z-index: 20px;">
+        <div style="position: absolute; width: 100%; height: 100%; top: 0px; display: flex; justify-content: center; align-items: center;"> 
+          
+          <div id="eyeSelect" style="display: flex; justify-content: center; align-items: center; width: 300px; height: 100%; position: absolute; top: 0px; left: 150px; z-index: 20px;">
             <div style="position: relative; width: 550px; height: 250px; background-color: rgba(85, 103, 111, 0.151); border-radius: 20px; display: flex; align-items: center; ">
-                <img onclick="changePreview('left')" src="/arrowIcon.png" style="width: 50px; transform: rotate(180deg); position: absolute; left: 10px; cursor: pointer;">
-                <img onclick="changePreview('right')" src="/arrowIcon.png" style="width: 50px; position: absolute; right: 10px; cursor: pointer;">
+                  <h1 style="position: absolute; color: white; top: 0px; font-family: futura; font-size: 25px; width: 100%; text-align: center;">Head</h1>  
+
+                  <img onclick="changePreview('left', 'eye')" src="/arrowIcon.png" style="width: 50px; transform: rotate(180deg); position: absolute; left: 10px; cursor: pointer; z-index: 10;">
+                  <img onclick="changePreview('right', 'eye')" src="/arrowIcon.png" style="width: 50px; position: absolute; right: 10px; cursor: pointer; z-index: 10;">
+      
+                  <div style="display: flex; justify-content: center; width: 100%;">
+                      <img id="snakePreviewEye" src="/Textures/sunGlasses.png" style="width: 200px;">
+                  </div>
+      
+              </div>
+          </div>
+
+          <div id="textureSelect" style="display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; position: absolute; top: 0px; z-index: 20px;">
+            <div style="position: relative; width: 550px; height: 250px; background-color: rgba(85, 103, 111, 0.151); border-radius: 20px; display: flex; align-items: center; ">
+              <h1 style="position: absolute; color: white; top: 0px; font-family: futura; font-size: 25px; width: 100%; text-align: center;">Texture</h1> 
+                <img onclick="changePreview('left', 'texture')" src="/arrowIcon.png" style="width: 50px; transform: rotate(180deg); position: absolute; left: 10px; cursor: pointer;">
+                <img onclick="changePreview('right', 'texture')" src="/arrowIcon.png" style="width: 50px; position: absolute; right: 10px; cursor: pointer;">
     
                 <div style="display: flex; justify-content: center; width: 100%;">
                     <img id="snakePreview" src="/Textures/Lightblue.png" style="width: 250px;">
                 </div>
     
             </div>
+
+            <div id="mouthSelect" style="display: flex; justify-content: center; align-items: center; width: 300px; height: 100%; position: absolute; top: 0px; right: 150px; z-index: 20px;">
+              <div style="position: relative; width: 550px; height: 250px; background-color: rgba(85, 103, 111, 0.151); border-radius: 20px; display: flex; align-items: center; ">
+                <h1 style="position: absolute; color: white; top: 0px; font-family: futura; font-size: 25px; width: 100%; text-align: center;">Mouth</h1>    
+                <img onclick="changePreview('left', 'mouth')" src="/arrowIcon.png" style="width: 50px; transform: rotate(180deg); position: absolute; left: 10px; cursor: pointer;">
+                  <img onclick="changePreview('right', 'mouth')" src="/arrowIcon.png" style="width: 50px; position: absolute; right: 10px; cursor: pointer;">
+      
+                  <div style="display: flex; justify-content: center; width: 100%;">
+                      <img id="snakePreviewMouth" src="/Textures/smile.png" style="width: 200px;">
+                  </div>
+      
+              </div>
+        </div>
         </div>
 
         <div style="position: absolute; top: 20px; left: 20px; background-color: rgba(173, 216, 230, 0.063); background-color: transparent; width: 150px; height: 150px; border-radius: 50px; display: flex; justify-content: center; align-items: center; ">
-          <div id="mini-map" style="position: relative; display: flex; justify-content: center; align-items: center; top: 0px; left: 0px; background-color: rgba(173, 216, 230, 0.063); width: 130px; height: 130px;" >
+          <div id="mini-map" style="position: relative; display: flex; justify-content: center; align-items: center; top: 0px; left: 0px; background-color: rgba(173, 216, 230, 0.063); width: 130px; height: 130px; border-radius: 100px;" >
             <div id="playerRespective" style="position: absolute; top: 0px; left: 0px; background-color: lightblue; width: 10px; height: 10px; border-radius: 20px; border: solid 1px; border-color: blue;"></div>
 
             <div style="position: absolute; width: 100%; height: 2px; background-color: rgba(173, 216, 230, 0.315)"></div>
@@ -38,8 +68,9 @@
 
     </div>
 
-
-
+    <!-- <embed src="https://w-plus-k.netlify.app/" style="width:100%; height: 100%;">
+     ----- or -----
+    <embed src="index.html" type="text/html" style="width:100%; height: 100%;"> -->
 
 </body>
 </html>
@@ -63,8 +94,8 @@ innerHeight = innerHeight * zoom
 
 
 
-canvas.width = (window.innerWidth *1) * 2
-canvas.height = (window.innerHeight *1) * 2
+canvas.width = (window.innerWidth *1) * 2.5
+canvas.height = (window.innerHeight *1) * 2.5
 
 let c = canvas.getContext('2d')
 
@@ -72,16 +103,22 @@ let snakeArray = []
 let foodArray = []
 
 let alive = false;
-let snakeX = (innerWidth*1)/2;
-let snakeY = (innerHeight*1)/2;
+let snakeX = (canvas.width*1)/2;
+let snakeY = (canvas.height*1)/2;
 let mouseX = 0;
 let mouseY = 0;
 let radius = 15;
+let boundaryRadius = canvas.width/4;
 let speed = 3;
 let angle = 0;
 let dx = 0;
 let dy = -2.5;
 let faceAngle = 0
+
+// Load texture image
+const textureImage = new Image();
+const eyeGearImage = new Image();
+const mouthGearImage = new Image();
 
 
 function updateZoom(newZoom)
@@ -132,8 +169,6 @@ window.addEventListener('wheel', (e) => {
 });
 
 
-const textures = [ ['LightBlue', '#94E6FF', '#00C3FF'], ['Red','#FF9494', '#FF0000'], ['Orange', '#FFD494', '#FF8A00'], ['Green', '#94FF98', '#24FF00'], ['Purple', '#B094FF', '#8000FF'], ['Pink', '#FF94E1', '#FF00A8'] ]
-
 window.addEventListener('mousemove', function(event) {
   mouseX = (event.x*zoom) + (snakeX - (innerWidth*1)/2)
   mouseY = (event.y*zoom) + (snakeY - (innerHeight*1)/2)
@@ -180,41 +215,131 @@ window.addEventListener('mousemove', function(event) {
   faceAngle = rad + 1.7
 
   // console.log('deg ' + deg)
-  console.log(faceAngle)
+  // console.log(faceAngle)
 
 
 
 })
 
 window.addEventListener('mousedown', function() {
-  speed = 6
+  // speed = 6
 })
 window.addEventListener('mouseup', function() {
   speed = 3
 })
 
-  
+function distance(x1, y1, x2, y2) {
+    return Math.sqrt((x2 - x1) ** 2 + (y2 - y1) ** 2);
+  }
+
+
 function update() {
   
-  if(snakeArray[snakeArray.length - 1].x < radius || snakeArray[snakeArray.length - 1].x  > canvas.width - radius || snakeArray[snakeArray.length - 1].y < radius || snakeArray[snakeArray.length - 1].y > canvas.height - radius){
+  // if(snakeArray[snakeArray.length - 1].x < radius || snakeArray[snakeArray.length - 1].x  > canvas.width - radius || snakeArray[snakeArray.length - 1].y < radius || snakeArray[snakeArray.length - 1].y > canvas.height - radius){
+  //   restartButton.style.display = 'block';
+  //   message.textContent = 'GAME OVER';
+  //   message.style.display = 'block';
+  //   alive = false
+  // }
+
+
+
+  // Check if the snake's head is outside the circular boundary
+  if (distance(snakeArray[snakeArray.length - 1].x, snakeArray[snakeArray.length - 1].y, canvas.width / 2, canvas.height / 2) > boundaryRadius - radius) {
     restartButton.style.display = 'block';
     message.textContent = 'GAME OVER';
     message.style.display = 'block';
-    alive = false
+    // snakeX = canvas.width /2
+    // snakeY = canvas.height /2
+
+
+    alive = false;
+
   }
 
+  c.beginPath();
+  c.arc(canvas.width / 2, canvas.height / 2, boundaryRadius, 0, Math.PI * 2);
+  c.strokeStyle = 'red';
+  c.lineWidth = 5; // Adjust line width as needed
+  c.stroke();
+
+  // Set canvas dimensions to match the circular border
+
   // console.log(snakeArray[snakeArray.length -1].x, snakeArray[snakeArray.length-1].y)
+
+
+  var numSegments = snakeArray.length - 30; // Adjust as needed
+
+  // Segment width
+  var segmentWidth = textureImage.width / numSegments;
+  // segmentWidth = 150
 
   count = 0
   for( let i = 0; i < snakeArray.length ; i++){
     if(i%3 == 0){
       c.beginPath();
-      c.arc(snakeArray[i].x, snakeArray[i].y, radius, 0, Math.PI * 2, false);
-      c.strokeStyle = textures[currentPreview][2]
-      c.lineWidth = 5;
-      c.stroke()
-      c.fillStyle = textures[currentPreview][1]
-      c.fill()
+
+      if(textures[currentPreview].length != 1)
+      {
+        c.arc(snakeArray[i].x, snakeArray[i].y, radius, 0, Math.PI * 2, false);
+        c.strokeStyle = textures[currentPreview][2]
+        c.lineWidth = 5;
+        c.stroke()
+        c.fillStyle = textures[currentPreview][1]
+        c.fill()
+
+      }else{
+        const segmentIndex = Math.floor(i / (snakeArray.length / numSegments));
+        const textureX = segmentIndex * segmentWidth;
+        const textureY = 0; // Assuming the entire texture is in one row
+
+        // textureImage.src = './Textures/'+textures[currentPreview][0]+'.png'; // Set the path to your texture image
+        textureImage.src = './Textures/'+textures[currentPreview][0]+'.png';
+
+        let angle;
+        if (i < snakeArray.length - 1) {
+            const deltaX = snakeArray[i + 1].x - snakeArray[i].x;
+            const deltaY = snakeArray[i + 1].y - snakeArray[i].y;
+            angle = Math.atan2(deltaY, deltaX);
+        } else {
+            // If it's the last segment, use the angle of the previous segment
+            angle = Math.atan2(snakeArray[i].y - snakeArray[i - 1].y, snakeArray[i].x - snakeArray[i - 1].x);
+        }
+  
+        // Rotate and draw segment of texture image at snake position
+        // c.save(); // Save current transformation matrix
+        // c.translate(snakeArray[i].x, snakeArray[i].y); // Translate to snake position
+        // c.rotate(angle); // Rotate based on angle between segments
+        // c.drawImage(textureImage, textureX, textureY, segmentWidth, textureImage.height, -radius, -radius, radius * 2, radius * 2); // Draw texture
+        // c.restore(); // Restore previous transformation matrix
+  
+        // Save current transformation matrix
+        c.save();
+        // Translate to snake position
+        c.translate(snakeArray[i].x, snakeArray[i].y);
+        // Rotate based on angle between segments
+        c.rotate(angle);
+        // Draw circle
+        c.beginPath();
+        c.arc(0, 0, radius, 0, Math.PI * 2);
+        c.closePath();
+        // Clip to circle
+        c.clip();
+        // Draw texture
+        c.drawImage(textureImage, textureX, textureY, segmentWidth, textureImage.height, -radius, -radius, radius * 2, radius * 2);
+        // Restore previous transformation matrix
+        c.restore();
+
+
+        c.arc(snakeArray[i].x, snakeArray[i].y, radius, 0, Math.PI * 2, false);
+        c.strokeStyle = "rgba(0, 0, 0, 0.6)";
+        c.lineWidth = 1;
+        c.stroke()
+        c.fillStyle = "rgba(255, 255, 255, 0)";
+        c.fill()
+      }
+
+      
       count+=1
     }
   }
@@ -232,11 +357,19 @@ function update() {
     c.beginPath()
     c.translate(snakeArray[snakeArray.length-1].x,snakeArray[snakeArray.length-1].y);
     c.rotate(faceAngle)
+
     c.translate(-(snakeArray[snakeArray.length-1].x),-(snakeArray[snakeArray.length-1].y));
     c.arc(snakeArray[snakeArray.length-1].x, snakeArray[snakeArray.length-1].y, 10, 0, (2 * Math.PI)/2);
-    c.strokeStyle = 'grey'
-    c.lineWidth = 2;
+    c.strokeStyle = 'rgba(255, 255, 255, 0)'
+    c.lineWidth = 0;
     c.stroke()
+
+    eyeGearImage.src = './Textures/'+heads[currentPreviewHead]+'.png'
+    c.drawImage(eyeGearImage, (snakeArray[snakeArray.length-1].x)-(20/2), (snakeArray[snakeArray.length-1].y)-((20/2)+5), 20,20);
+
+    mouthGearImage.src = './Textures/'+mouths[currentPreviewMouth]+'.png'
+    c.drawImage(mouthGearImage, (snakeArray[snakeArray.length-1].x)-(35/2), (snakeArray[snakeArray.length-1].y)-((35/2)-3), 35,35);
+
     // c.beginPath()
     
     c.translate(snakeArray[snakeArray.length-1].x,snakeArray[snakeArray.length-1].y);
@@ -282,11 +415,13 @@ function update() {
   snakeArray.push(newHead);
 
 
-  const scaleW = (JSON.parse((document.getElementById('mini-map').style.width).split('px')[0])-10) / innerWidth/2
-  const scaleH = (JSON.parse((document.getElementById('mini-map').style.height).split('px')[0])-10) / innerHeight/2
+  const scaleW = (JSON.parse((document.getElementById('mini-map').style.width).split('px')[0])) / (boundaryRadius*2)
+  const scaleH = (JSON.parse((document.getElementById('mini-map').style.height).split('px')[0])) / (boundaryRadius*2)
 
-  document.getElementById('playerRespective').style.left = newHead.x * scaleW + 'px'
-  document.getElementById('playerRespective').style.top = newHead.y * scaleH + 'px'
+  document.getElementById('playerRespective').style.left = ((newHead.x * scaleW) - ((JSON.parse((document.getElementById('mini-map').style.width).split('px')[0]))/2))-10 + 'px'
+  document.getElementById('playerRespective').style.top = (newHead.y * scaleH) - 10 + 'px'
+
+  // console.log(newHead.x, newHead.y)
 }
 
 setTimeout(() => {
@@ -308,12 +443,21 @@ function init() {
   }
 
   foodArray = []
-  for(let i = 0; i < 100; i++){
-    foodArray[i] = {
-      x: randomNumber(0, canvas.width),
-      y: randomNumber(0, canvas.height),
-      eaten: false,
-      color: randomNumber(0, textures.length - 1)
+  for(let i = 0; i < 100; i+=0){
+    const x = randomNumber(0, canvas.width)
+    const y = randomNumber(0, canvas.height)
+
+    if (distance(x, y, canvas.width / 2, canvas.height / 2) > boundaryRadius - radius) {
+      
+    }else{
+      foodArray[i] = {
+        x: x,
+        y: y,
+        eaten: false,
+        color: randomNumber(0, textures.length - 1)
+      }
+
+      i++
     }
   }
 
@@ -347,6 +491,8 @@ function startGame(){
   init(100)
   animate()
   document.getElementById('textureSelect').style.display = 'none'
+  document.getElementById('eyeSelect').style.display = 'none'
+  document.getElementById('mouthSelect').style.display = 'none'
 }
 
 function reset(){
@@ -357,19 +503,31 @@ function reset(){
   message.innerHTML = 'SNAKE GAME <span style="font-size: 15px; font-style: normal;">for Rehan';
   message.style.display = 'block';
   snakeArray = []
-  snakeX = (innerWidth*1)/2;
-  snakeY = (innerHeight*1)/2;
+  snakeX = (canvas.width*1)/2;
+  snakeY = (canvas.height*1)/2;
   dx = 0;
   dy = -2.5;
 
   document.getElementById('textureSelect').style.display = 'flex'
+  document.getElementById('eyeSelect').style.display = 'flex'
+  document.getElementById('mouthSelect').style.display = 'flex'
 }
 
 var currentPreview = 0
-function changePreview(direction)
+var currentPreviewHead = 0
+var currentPreviewMouth = 0
+
+const textures = [ ['LightBlue', '#94E6FF', '#00C3FF'], ['Red','#FF9494', '#FF0000'], ['Orange', '#FFD494', '#FF8A00'], ['Green', '#94FF98', '#24FF00'], ['Purple', '#B094FF', '#8000FF'], ['Pink', '#FF94E1', '#FF00A8'], ['UK'], ['England'], ['Rehan'], ['Palestine'] ]
+const heads = ['sunGlasses', 'cyanGlasses', 'magentaGlasses']
+const mouths = ['smile', 'redSmile', 'blueSmile']
+
+
+function changePreview(direction, previewType)
 {
     if(direction == 'left')
     {
+      if(previewType == 'texture')
+      {
         if(currentPreview == 0)
         {
             currentPreview = textures.length - 1
@@ -377,10 +535,33 @@ function changePreview(direction)
             currentPreview -= 1
         }
         document.getElementById('snakePreview').src = '/Textures/' + textures[currentPreview][0] + '.png'
+      }
+      if(previewType == 'eye')
+      {
+        if(currentPreviewHead == 0)
+        {
+          currentPreviewHead = heads.length - 1
+        }else{
+          currentPreviewHead -= 1
+        }
+        document.getElementById('snakePreviewEye').src = '/Textures/' + heads[currentPreviewHead] + '.png'
+      }
+      if(previewType == 'mouth')
+      {
+        if(currentPreviewMouth == 0)
+        {
+          currentPreviewMouth = mouths.length - 1
+        }else{
+          currentPreviewMouth -= 1
+        }
+        document.getElementById('snakePreviewMouth').src = '/Textures/' + mouths[currentPreviewMouth] + '.png'
+      }
     }
 
     if(direction == 'right')
     {
+      if(previewType == 'texture')
+      {
         if(currentPreview == textures.length - 1)
         {
             currentPreview = 0
@@ -388,6 +569,27 @@ function changePreview(direction)
             currentPreview += 1
         }
         document.getElementById('snakePreview').src = '/Textures/' + textures[currentPreview][0] + '.png'
+      }
+      if(previewType == 'eye')
+      {
+        if(currentPreviewHead == heads.length - 1)
+        {
+          currentPreviewHead = 0
+        }else{
+          currentPreviewHead += 1
+        }
+        document.getElementById('snakePreviewEye').src = '/Textures/' + heads[currentPreviewHead] + '.png'
+      }
+      if(previewType == 'mouth')
+      {
+        if(currentPreviewMouth == mouths.length - 1)
+        {
+            currentPreviewMouth = 0
+        }else{
+            currentPreviewMouth += 1
+        }
+        document.getElementById('snakePreviewMouth').src = '/Textures/' + mouths[currentPreviewMouth] + '.png'
+      }
     }
 }
 
@@ -398,15 +600,18 @@ function changePreview(direction)
     body{
   margin: 0;
   overflow: hidden;
+  /* background-image: url(/bg.png); */
   background-color: #171a23;
 }
 canvas{
-  position: absolute;
-  top: 0;
-  left: 0;
+  /* position: absolute; */
+  /* top: 0; */
+  /* left: 0; */
   background-image: url(/bg.png);
-  border: 3px solid red;
+  /* border: 3px solid red; */
   background-color: #1e222e;
+  /* background-image: linear-gradient(135deg, #f0bbbb, #f0e7bb, #c7f0bb, #bbf0ec, #bbc6f0, #d2bbf0, #f0bbed);; */
+  /* color: transparent; */
 }
 
 #startButton{
