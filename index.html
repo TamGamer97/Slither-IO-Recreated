@@ -222,7 +222,7 @@ window.addEventListener('mousemove', function(event) {
 })
 
 window.addEventListener('mousedown', function() {
-  // speed = 6
+  speed = 6
 })
 window.addEventListener('mouseup', function() {
   speed = 3
@@ -269,10 +269,15 @@ function update() {
 
 
   var numSegments = snakeArray.length - 30; // Adjust as needed
+  // var numSegments = 500
+
+  const segmentsPerPattern = numSegments
 
   // Segment width
   var segmentWidth = textureImage.width / numSegments;
   // segmentWidth = 150
+
+  // console.log(snakeArray)
 
   count = 0
   for( let i = 0; i < snakeArray.length ; i++){
@@ -281,7 +286,14 @@ function update() {
 
       if(textures[currentPreview].length != 1)
       {
-        c.arc(snakeArray[i].x, snakeArray[i].y, radius, 0, Math.PI * 2, false);
+        if(speed == 6)
+        {
+          c.arc(snakeArray[i].x, snakeArray[i].y , radius, 0, Math.PI * 2, false);
+        }else{
+          c.arc(snakeArray[i].x, snakeArray[i].y , radius, 0, Math.PI * 2, false);
+        }
+
+        
         c.strokeStyle = textures[currentPreview][2]
         c.lineWidth = 5;
         c.stroke()
@@ -289,9 +301,13 @@ function update() {
         c.fill()
 
       }else{
-        const segmentIndex = Math.floor(i / (snakeArray.length / numSegments));
-        const textureX = segmentIndex * segmentWidth;
-        const textureY = 0; // Assuming the entire texture is in one row
+        // const segmentIndex = Math.floor(i / (snakeArray.length / numSegments));
+        // const textureX = segmentIndex * segmentWidth;
+        // const textureY = 0; // Assuming the entire texture is in one row
+
+        const segmentIndex = (i + snakeArray.length - segmentsPerPattern) % segmentsPerPattern;
+            const textureX = segmentIndex * segmentWidth;
+            const textureY = 0; // Assuming the entire texture is in one row
 
         // textureImage.src = './Textures/'+textures[currentPreview][0]+'.png'; // Set the path to your texture image
         textureImage.src = './Textures/'+textures[currentPreview][0]+'.png';
@@ -312,23 +328,42 @@ function update() {
         // c.rotate(angle); // Rotate based on angle between segments
         // c.drawImage(textureImage, textureX, textureY, segmentWidth, textureImage.height, -radius, -radius, radius * 2, radius * 2); // Draw texture
         // c.restore(); // Restore previous transformation matrix
-  
+        
+        // USE THIS FOR NON REPEATING PATTERN
+        // Save current transformation matrix
+        // c.save();
+        // // Translate to snake position
+        // c.translate(snakeArray[i].x, snakeArray[i].y);
+        // // Rotate based on angle between segments
+        // c.rotate(angle);
+        // // Draw circle
+        // c.beginPath();
+        // c.arc(0, 0, radius, 0, Math.PI * 2);
+        // c.closePath();
+        // // Clip to circle
+        // c.clip();
+        // // Draw texture
+        // c.drawImage(textureImage, textureX, textureY, segmentWidth, textureImage.height, -radius, -radius, radius * 2, radius * 2);
+        // // Restore previous transformation matrix
+        // c.restore();
+
+        // USE THIS FOR REPEATING PATTERN
         // Save current transformation matrix
         c.save();
-        // Translate to snake position
-        c.translate(snakeArray[i].x, snakeArray[i].y);
-        // Rotate based on angle between segments
-        c.rotate(angle);
-        // Draw circle
-        c.beginPath();
-        c.arc(0, 0, radius, 0, Math.PI * 2);
-        c.closePath();
-        // Clip to circle
-        c.clip();
-        // Draw texture
-        c.drawImage(textureImage, textureX, textureY, segmentWidth, textureImage.height, -radius, -radius, radius * 2, radius * 2);
-        // Restore previous transformation matrix
-        c.restore();
+            // Translate to snake position
+            c.translate(snakeArray[i].x, snakeArray[i].y);
+            // Rotate based on angle between segments
+            c.rotate(angle);
+            // Draw circle
+            c.beginPath();
+            c.arc(0, 0, radius, 0, Math.PI * 2);
+            c.closePath();
+            // Clip to circle
+            c.clip();
+            // Draw texture
+            c.drawImage(textureImage, textureX, textureY, segmentWidth, textureImage.height, -radius, -radius, radius * 2, radius * 2);
+            // Restore previous transformation matrix
+            c.restore();
 
 
         c.arc(snakeArray[i].x, snakeArray[i].y, radius, 0, Math.PI * 2, false);
@@ -406,8 +441,10 @@ function update() {
   
   snakeX = snakeArray[snakeArray.length - 1].x;
   snakeY = snakeArray[snakeArray.length - 1].y;
-  snakeX += dx * speed;
-  snakeY += dy * speed;
+  snakeX += dx * speed
+  snakeY += dy * speed  
+
+  console.log(dx, dy)
   
   snakeArray.shift();
   
@@ -607,8 +644,8 @@ canvas{
   /* position: absolute; */
   /* top: 0; */
   /* left: 0; */
-  background-image: url(/bg.png);
   /* border: 3px solid red; */
+  background-image: url(/bg.png);
   background-color: #1e222e;
   /* background-image: linear-gradient(135deg, #f0bbbb, #f0e7bb, #c7f0bb, #bbf0ec, #bbc6f0, #d2bbf0, #f0bbed);; */
   /* color: transparent; */
